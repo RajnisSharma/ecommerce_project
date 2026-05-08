@@ -1,0 +1,10 @@
+node_modules/
+frontend-web/node_modules/
+mobile-app/node_modules/
+backend/venv/
+backend/media/
+upload/
+frontend-web/dist/
+.env
+*.log
+__pycache__/
