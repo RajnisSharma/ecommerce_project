@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Heart, Share2, Star, ShoppingCart, Check } from 'lucide-react'
 import { fetchProduct, clearProduct } from '../store/slices/productSlice'
 import { addToCart } from '../store/slices/cartSlice'
-import { wishlistAPI } from '../services/api'
+import { addToWishlist, removeFromWishlist, fetchWishlist } from '../store/slices/wishlistSlice'
 import ReviewList from '../components/product/ReviewList'
 import Loader from '../components/common/Loader'
 import toast from 'react-hot-toast'
@@ -14,6 +14,7 @@ export default function ProductDetailPage() {
   const dispatch = useDispatch()
   const { product, loading } = useSelector((state) => state.products)
   const { isAuthenticated } = useSelector((state) => state.auth)
+  const { items, productIds } = useSelector((state) => state.wishlist)
   const [quantity, setQuantity] = useState(1)
   const [selectedImage, setSelectedImage] = useState(0)
 
@@ -21,6 +22,16 @@ export default function ProductDetailPage() {
     dispatch(fetchProduct(slug))
     return () => dispatch(clearProduct())
   }, [dispatch, slug])
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      dispatch(fetchWishlist())
+    }
+  }, [dispatch, isAuthenticated])
+
+  // Check if this product is in wishlist
+  const isInWishlist = product && productIds.includes(product.id)
+  const wishlistItem = items.find(item => item.product.id === product?.id)
 
   const handleAddToCart = () => {
     if (!isAuthenticated) {
@@ -33,17 +44,24 @@ export default function ProductDetailPage() {
       .catch(() => toast.error('Failed to add to cart'))
   }
 
-  const handleAddToWishlist = async () => {
+  const handleWishlistToggle = async () => {
     if (!isAuthenticated) {
       toast.error('Please login to add items to wishlist')
       return
     }
-    try {
-      await wishlistAPI.addToWishlist(product.id)
-      toast.success('Added to wishlist')
-    } catch (error) {
-      const message = error.response?.data?.product_id?.[0] || 'Failed to add to wishlist'
-      toast.error(message)
+
+    if (isInWishlist && wishlistItem) {
+      // Remove from wishlist
+      dispatch(removeFromWishlist(wishlistItem.id))
+        .unwrap()
+        .then(() => toast.success('Removed from wishlist'))
+        .catch(() => toast.error('Failed to remove from wishlist'))
+    } else {
+      // Add to wishlist
+      dispatch(addToWishlist(product.id))
+        .unwrap()
+        .then(() => toast.success('Added to wishlist'))
+        .catch(() => toast.error('Failed to add to wishlist'))
     }
   }
 
@@ -87,8 +105,8 @@ export default function ProductDetailPage() {
                 <Star
                   key={i}
                   className={`w-5 h-5 ${i < Math.round(product.average_rating)
-                      ? 'text-yellow-400 fill-current'
-                      : 'text-gray-300'
+                    ? 'text-yellow-400 fill-current'
+                    : 'text-gray-300'
                     }`}
                 />
               ))}
@@ -127,7 +145,13 @@ export default function ProductDetailPage() {
               <ShoppingCart className="w-5 h-5" />
               <span>Add to Cart</span>
             </button>
-            <button onClick={handleAddToWishlist} className="p-3 border rounded-lg hover:bg-gray-50" aria-label="Add to wishlist"><Heart className="w-5 h-5" /></button>
+            <button
+              onClick={handleWishlistToggle}
+              className={`p-3 border rounded-lg hover:bg-gray-50 transition-colors ${isInWishlist ? 'border-red-200 bg-red-50' : ''}`}
+              aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+            >
+              <Heart className={`w-5 h-5 transition-colors ${isInWishlist ? 'text-red-500 fill-red-500' : ''}`} />
+            </button>
             <button className="p-3 border rounded-lg hover:bg-gray-50"><Share2 className="w-5 h-5" /></button>
           </div>
 

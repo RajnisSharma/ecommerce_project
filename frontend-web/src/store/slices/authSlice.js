@@ -220,7 +220,9 @@ const authSlice = createSlice({
       })
       .addCase(fetchAddresses.fulfilled, (state, action) => {
         state.loading = false
-        state.addresses = action.payload
+        // Handle both paginated (results) and plain array responses
+        const payload = action.payload
+        state.addresses = Array.isArray(payload) ? payload : (payload.results || [])
       })
       .addCase(fetchAddresses.rejected, (state, action) => {
         state.loading = false

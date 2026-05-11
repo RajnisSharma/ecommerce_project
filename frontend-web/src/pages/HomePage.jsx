@@ -49,28 +49,28 @@ export default function HomePage() {
       </section>
 
       {/* Features */}
-      <section className="py-12 bg-gray-50">
+      <section className="py-12 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="flex items-center space-x-4 bg-white p-6 rounded-lg shadow-sm">
+            <div className="flex items-center space-x-4 bg-white dark:bg-gray-700 p-6 rounded-lg shadow-sm">
               <Truck className="w-10 h-10 text-primary-600" />
               <div>
-                <h3 className="font-semibold">Free Shipping</h3>
-                <p className="text-sm text-gray-500">On orders over $100</p>
+                <h3 className="font-semibold dark:text-gray-100">Free Shipping</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">On orders over $100</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4 bg-white p-6 rounded-lg shadow-sm">
+            <div className="flex items-center space-x-4 bg-white dark:bg-gray-700 p-6 rounded-lg shadow-sm">
               <Shield className="w-10 h-10 text-primary-600" />
               <div>
-                <h3 className="font-semibold">Secure Payment</h3>
-                <p className="text-sm text-gray-500">100% secure checkout</p>
+                <h3 className="font-semibold dark:text-gray-100">Secure Payment</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">100% secure checkout</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4 bg-white p-6 rounded-lg shadow-sm">
+            <div className="flex items-center space-x-4 bg-white dark:bg-gray-700 p-6 rounded-lg shadow-sm">
               <Headphones className="w-10 h-10 text-primary-600" />
               <div>
-                <h3 className="font-semibold">24/7 Support</h3>
-                <p className="text-sm text-gray-500">Dedicated support</p>
+                <h3 className="font-semibold dark:text-gray-100">24/7 Support</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Dedicated support</p>
               </div>
             </div>
           </div>
@@ -80,7 +80,7 @@ export default function HomePage() {
       {/* Featured Products */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold mb-8">Featured Products</h2>
+          <h2 className="text-2xl font-bold mb-8 dark:text-gray-100">Featured Products</h2>
           {loading ? (
             <Loader className="h-64" />
           ) : (
@@ -95,9 +95,9 @@ export default function HomePage() {
 
       {/* Recommendations */}
       {isAuthenticated && (recommendations || []).length > 0 && (
-        <section className="py-12 bg-gray-50">
+        <section className="py-12 bg-gray-50 dark:bg-gray-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold mb-8">Recommended for You</h2>
+            <h2 className="text-2xl font-bold mb-8 dark:text-gray-100">Recommended for You</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {(recommendations || []).slice(0, 4).map((product) => (
                 <ProductCard key={product.id} product={product} />

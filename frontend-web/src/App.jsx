@@ -46,7 +46,7 @@ function App() {
       dispatch(fetchCart())
       dispatch(fetchNotifications())
     }
-  }, [dispatch])
+  }, [])
 
   return (
     <Router>

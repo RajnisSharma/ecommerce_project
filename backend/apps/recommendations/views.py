@@ -40,7 +40,7 @@ class PersonalizedRecommendationsView(APIView):
                 is_active=True, is_featured=True
             )[:10]
         
-        serializer = ProductListSerializer(recommendations, many=True)
+        serializer = ProductListSerializer(recommendations, many=True, context={'request': request})
         return Response(serializer.data)
 
 
@@ -61,7 +61,7 @@ class SimilarProductsView(APIView):
             order_count=Count('orderitem')
         ).order_by('-order_count')[:6]
         
-        serializer = ProductListSerializer(similar, many=True)
+        serializer = ProductListSerializer(similar, many=True, context={'request': request})
         return Response(serializer.data)
 
 
@@ -80,7 +80,7 @@ class TrendingProductsView(APIView):
         if not trending.exists():
             trending = Product.objects.filter(is_active=True).order_by('-is_featured', '-created_at')[:10]
         
-        serializer = ProductListSerializer(trending, many=True)
+        serializer = ProductListSerializer(trending, many=True, context={'request': request})
         return Response(serializer.data)
 
 
@@ -110,5 +110,5 @@ class FrequentlyBoughtTogetherView(APIView):
         product_ids = [item['product'] for item in frequently_bought]
         products = Product.objects.filter(id__in=product_ids, is_active=True)
         
-        serializer = ProductListSerializer(products, many=True)
+        serializer = ProductListSerializer(products, many=True, context={'request': request})
         return Response(serializer.data)

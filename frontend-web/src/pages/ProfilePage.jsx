@@ -5,7 +5,7 @@ import toast from 'react-hot-toast'
 import {
   User, Mail, Phone, Calendar, MapPin, Lock, Camera, Edit2,
   Plus, Trash2, Check, Home, Package, Heart, CreditCard,
-  ChevronRight, Shield
+  ChevronRight, Shield, Clock
 } from 'lucide-react'
 import {
   fetchProfile, updateProfile, changePassword,
@@ -28,6 +28,7 @@ export default function ProfilePage() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const fileInputRef = useRef(null)
+  const hasFetched = useRef(false)
 
   const { user, addresses, loading, error, successMessage } = useSelector((state) => state.auth)
   const { orders } = useSelector((state) => state.orders)
@@ -62,10 +63,12 @@ export default function ProfilePage() {
   })
 
   useEffect(() => {
+    if (hasFetched.current) return
+    hasFetched.current = true
     dispatch(fetchProfile())
     dispatch(fetchAddresses())
     dispatch(fetchOrders())
-  }, [dispatch])
+  }, [])
 
   useEffect(() => {
     if (user) {
@@ -213,38 +216,38 @@ export default function ProfilePage() {
     <div className="space-y-6">
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-800 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Total Orders</p>
-              <p className="text-2xl font-bold">{stats.total}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Orders</p>
+              <p className="text-2xl font-bold dark:text-gray-100">{stats.total}</p>
             </div>
             <Package className="w-8 h-8 text-primary-500" />
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-800 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Delivered</p>
-              <p className="text-2xl font-bold">{stats.delivered}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Delivered</p>
+              <p className="text-2xl font-bold dark:text-gray-100">{stats.delivered}</p>
             </div>
             <Check className="w-8 h-8 text-green-500" />
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-800 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Pending</p>
-              <p className="text-2xl font-bold">{stats.pending}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Pending</p>
+              <p className="text-2xl font-bold dark:text-gray-100">{stats.pending}</p>
             </div>
-            <ClockIcon className="w-8 h-8 text-yellow-500" />
+            <Clock className="w-8 h-8 text-yellow-500" />
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-800 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Total Spent</p>
-              <p className="text-2xl font-bold">${stats.totalSpent.toFixed(2)}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Total Spent</p>
+              <p className="text-2xl font-bold dark:text-gray-100">${stats.totalSpent.toFixed(2)}</p>
             </div>
             <CreditCard className="w-8 h-8 text-primary-500" />
           </div>
@@ -252,12 +255,12 @@ export default function ProfilePage() {
       </div>
 
       {/* Profile Info */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-800 p-6">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold">Profile Information</h3>
+          <h3 className="text-lg font-semibold dark:text-gray-100">Profile Information</h3>
           <button
             onClick={() => setIsEditing(true)}
-            className="flex items-center text-primary-600 hover:text-primary-700"
+            className="flex items-center text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
           >
             <Edit2 className="w-4 h-4 mr-1" />
             Edit
@@ -265,32 +268,32 @@ export default function ProfilePage() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
-          <div className="flex items-center p-4 bg-gray-50 rounded-lg">
-            <User className="w-5 h-5 text-gray-400 mr-3" />
+          <div className="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <User className="w-5 h-5 text-gray-400 dark:text-gray-500 mr-3" />
             <div>
-              <p className="text-sm text-gray-500">Full Name</p>
-              <p className="font-medium">{user?.first_name} {user?.last_name}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Full Name</p>
+              <p className="font-medium dark:text-gray-100">{user?.first_name} {user?.last_name}</p>
             </div>
           </div>
-          <div className="flex items-center p-4 bg-gray-50 rounded-lg">
-            <Mail className="w-5 h-5 text-gray-400 mr-3" />
+          <div className="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <Mail className="w-5 h-5 text-gray-400 dark:text-gray-500 mr-3" />
             <div>
-              <p className="text-sm text-gray-500">Email</p>
-              <p className="font-medium">{user?.email}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
+              <p className="font-medium dark:text-gray-100">{user?.email}</p>
             </div>
           </div>
-          <div className="flex items-center p-4 bg-gray-50 rounded-lg">
-            <Phone className="w-5 h-5 text-gray-400 mr-3" />
+          <div className="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <Phone className="w-5 h-5 text-gray-400 dark:text-gray-500 mr-3" />
             <div>
-              <p className="text-sm text-gray-500">Phone</p>
-              <p className="font-medium">{user?.phone || 'Not provided'}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Phone</p>
+              <p className="font-medium dark:text-gray-100">{user?.phone || 'Not provided'}</p>
             </div>
           </div>
-          <div className="flex items-center p-4 bg-gray-50 rounded-lg">
-            <Calendar className="w-5 h-5 text-gray-400 mr-3" />
+          <div className="flex items-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <Calendar className="w-5 h-5 text-gray-400 dark:text-gray-500 mr-3" />
             <div>
-              <p className="text-sm text-gray-500">Member Since</p>
-              <p className="font-medium">{new Date(user?.date_joined).toLocaleDateString()}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Member Since</p>
+              <p className="font-medium dark:text-gray-100">{new Date(user?.date_joined).toLocaleDateString()}</p>
             </div>
           </div>
         </div>
@@ -298,12 +301,12 @@ export default function ProfilePage() {
 
       {/* Default Address */}
       {addresses.length > 0 && (
-        <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-800 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold">Default Address</h3>
+            <h3 className="text-lg font-semibold dark:text-gray-100">Default Address</h3>
             <button
               onClick={() => setActiveTab(TABS.ADDRESSES)}
-              className="text-primary-600 hover:text-primary-700 text-sm"
+              className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm"
             >
               Manage All
             </button>
@@ -311,12 +314,12 @@ export default function ProfilePage() {
           {(() => {
             const defaultAddr = addresses.find(a => a.is_default) || addresses[0]
             return (
-              <div className="flex items-start p-4 bg-gray-50 rounded-lg">
-                <Home className="w-5 h-5 text-gray-400 mr-3 mt-0.5" />
+              <div className="flex items-start p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <Home className="w-5 h-5 text-gray-400 dark:text-gray-500 mr-3 mt-0.5" />
                 <div>
-                  <p className="font-medium">{defaultAddr.street}</p>
-                  <p className="text-gray-500">{defaultAddr.city}, {defaultAddr.state} {defaultAddr.postal_code}</p>
-                  <p className="text-gray-500">{defaultAddr.country}</p>
+                  <p className="font-medium dark:text-gray-100">{defaultAddr.street}</p>
+                  <p className="text-gray-500 dark:text-gray-400">{defaultAddr.city}, {defaultAddr.state} {defaultAddr.postal_code}</p>
+                  <p className="text-gray-500 dark:text-gray-400">{defaultAddr.country}</p>
                 </div>
               </div>
             )
@@ -325,29 +328,29 @@ export default function ProfilePage() {
       )}
 
       {/* Recent Orders */}
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-800 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">Recent Orders</h3>
+          <h3 className="text-lg font-semibold dark:text-gray-100">Recent Orders</h3>
           <button
             onClick={() => navigate('/orders')}
-            className="flex items-center text-primary-600 hover:text-primary-700 text-sm"
+            className="flex items-center text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 text-sm"
           >
             View All
             <ChevronRight className="w-4 h-4 ml-1" />
           </button>
         </div>
         {orders?.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">No orders yet</p>
+          <p className="text-gray-500 dark:text-gray-400 text-center py-4">No orders yet</p>
         ) : (
           <div className="space-y-3">
             {orders?.slice(0, 3).map((order) => (
-              <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                 <div>
-                  <p className="font-medium">{order.order_number}</p>
-                  <p className="text-sm text-gray-500">{new Date(order.created_at).toLocaleDateString()}</p>
+                  <p className="font-medium dark:text-gray-100">{order.order_number}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{new Date(order.created_at).toLocaleDateString()}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium">${order.total_amount}</p>
+                  <p className="font-medium dark:text-gray-100">${order.total_amount}</p>
                   <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(order.status)}`}>
                     {order.status}
                   </span>
@@ -361,38 +364,38 @@ export default function ProfilePage() {
   )
 
   const renderEditProfile = () => (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-semibold mb-6">Edit Profile</h3>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-800 p-6">
+      <h3 className="text-lg font-semibold dark:text-gray-100 mb-6">Edit Profile</h3>
       <form onSubmit={handleProfileSubmit} className="space-y-4">
         <div className="grid md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">First Name</label>
             <input
               type="text"
               value={profileForm.first_name}
               onChange={(e) => setProfileForm({ ...profileForm, first_name: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-gray-100"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Last Name</label>
             <input
               type="text"
               value={profileForm.last_name}
               onChange={(e) => setProfileForm({ ...profileForm, last_name: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-gray-100"
               required
             />
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
           <input
             type="tel"
             value={profileForm.phone}
             onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-gray-100"
           />
         </div>
         <div className="flex gap-3 pt-4">
@@ -409,7 +412,7 @@ export default function ProfilePage() {
               setIsEditing(false)
               setActiveTab(TABS.OVERVIEW)
             }}
-            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+            className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
           >
             Cancel
           </button>
@@ -421,7 +424,7 @@ export default function ProfilePage() {
   const renderAddresses = () => (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold">My Addresses</h3>
+        <h3 className="text-lg font-semibold dark:text-gray-100">My Addresses</h3>
         <button
           onClick={() => {
             setEditingAddress(null)
@@ -436,59 +439,59 @@ export default function ProfilePage() {
       </div>
 
       {showAddressForm && (
-        <div className="bg-gray-50 rounded-lg p-6">
-          <h4 className="font-medium mb-4">{editingAddress ? 'Edit Address' : 'Add New Address'}</h4>
+        <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
+          <h4 className="font-medium dark:text-gray-100 mb-4">{editingAddress ? 'Edit Address' : 'Add New Address'}</h4>
           <form onSubmit={handleAddressSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Street Address</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Street Address</label>
               <input
                 type="text"
                 value={addressForm.street}
                 onChange={(e) => setAddressForm({ ...addressForm, street: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:text-gray-100"
                 required
               />
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">City</label>
                 <input
                   type="text"
                   value={addressForm.city}
                   onChange={(e) => setAddressForm({ ...addressForm, city: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:text-gray-100"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">State</label>
                 <input
                   type="text"
                   value={addressForm.state}
                   onChange={(e) => setAddressForm({ ...addressForm, state: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:text-gray-100"
                   required
                 />
               </div>
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Postal Code</label>
                 <input
                   type="text"
                   value={addressForm.postal_code}
                   onChange={(e) => setAddressForm({ ...addressForm, postal_code: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:text-gray-100"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Country</label>
                 <input
                   type="text"
                   value={addressForm.country}
                   onChange={(e) => setAddressForm({ ...addressForm, country: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-800 dark:text-gray-100"
                   required
                 />
               </div>
@@ -499,9 +502,9 @@ export default function ProfilePage() {
                 id="is_default"
                 checked={addressForm.is_default}
                 onChange={(e) => setAddressForm({ ...addressForm, is_default: e.target.checked })}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700"
               />
-              <label htmlFor="is_default" className="ml-2 text-sm text-gray-700">
+              <label htmlFor="is_default" className="ml-2 text-sm text-gray-700 dark:text-gray-300">
                 Set as default address
               </label>
             </div>
@@ -519,7 +522,7 @@ export default function ProfilePage() {
                   setShowAddressForm(false)
                   setEditingAddress(null)
                 }}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
               >
                 Cancel
               </button>
@@ -529,20 +532,20 @@ export default function ProfilePage() {
       )}
 
       <div className="grid md:grid-cols-2 gap-4">
-        {addresses.length === 0 ? (
-          <p className="text-gray-500 col-span-2 text-center py-8">No addresses saved yet</p>
+        {!addresses || !Array.isArray(addresses) || addresses.length === 0 ? (
+          <p className="text-gray-500 dark:text-gray-400 col-span-2 text-center py-8">No addresses saved yet</p>
         ) : (
           addresses.map((address) => (
-            <div key={address.id} className={`bg-white rounded-lg shadow p-4 border-2 ${address.is_default ? 'border-primary-500' : 'border-transparent'}`}>
+            <div key={address.id} className={`bg-white dark:bg-gray-800 rounded-lg shadow dark:shadow-gray-800 p-4 border-2 ${address.is_default ? 'border-primary-500' : 'border-transparent'}`}>
               <div className="flex items-start justify-between">
                 <div className="flex items-start">
-                  <MapPin className="w-5 h-5 text-gray-400 mr-2 mt-0.5" />
+                  <MapPin className="w-5 h-5 text-gray-400 dark:text-gray-500 mr-2 mt-0.5" />
                   <div>
-                    <p className="font-medium">{address.street}</p>
-                    <p className="text-gray-500 text-sm">{address.city}, {address.state} {address.postal_code}</p>
-                    <p className="text-gray-500 text-sm">{address.country}</p>
+                    <p className="font-medium dark:text-gray-100">{address.street}</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">{address.city}, {address.state} {address.postal_code}</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">{address.country}</p>
                     {address.is_default && (
-                      <span className="inline-flex items-center mt-2 px-2 py-1 bg-primary-100 text-primary-700 text-xs rounded">
+                      <span className="inline-flex items-center mt-2 px-2 py-1 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 text-xs rounded">
                         <Check className="w-3 h-3 mr-1" />
                         Default
                       </span>
@@ -552,13 +555,13 @@ export default function ProfilePage() {
                 <div className="flex gap-1">
                   <button
                     onClick={() => handleEditAddress(address)}
-                    className="p-1 text-gray-400 hover:text-primary-600"
+                    className="p-1 text-gray-400 dark:text-gray-500 hover:text-primary-600 dark:hover:text-primary-400"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleDeleteAddress(address.id)}
-                    className="p-1 text-gray-400 hover:text-red-600"
+                    className="p-1 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
@@ -572,44 +575,44 @@ export default function ProfilePage() {
   )
 
   const renderSecurity = () => (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-semibold mb-6">Security Settings</h3>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-800 p-6">
+      <h3 className="text-lg font-semibold dark:text-gray-100 mb-6">Security Settings</h3>
 
       <div className="mb-8">
-        <h4 className="font-medium mb-4 flex items-center">
+        <h4 className="font-medium dark:text-gray-100 mb-4 flex items-center">
           <Lock className="w-4 h-4 mr-2" />
           Change Password
         </h4>
         <form onSubmit={handlePasswordSubmit} className="space-y-4 max-w-md">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Current Password</label>
             <input
               type="password"
               value={passwordForm.old_password}
               onChange={(e) => setPasswordForm({ ...passwordForm, old_password: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-gray-100"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">New Password</label>
             <input
               type="password"
               value={passwordForm.new_password}
               onChange={(e) => setPasswordForm({ ...passwordForm, new_password: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-gray-100"
               required
               minLength={8}
             />
-            <p className="text-xs text-gray-500 mt-1">Must be at least 8 characters</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Must be at least 8 characters</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Confirm New Password</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirm New Password</label>
             <input
               type="password"
               value={passwordForm.new_password_confirm}
               onChange={(e) => setPasswordForm({ ...passwordForm, new_password_confirm: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:text-gray-100"
               required
             />
           </div>
@@ -623,12 +626,12 @@ export default function ProfilePage() {
         </form>
       </div>
 
-      <div className="border-t pt-6">
-        <h4 className="font-medium mb-4 flex items-center text-red-600">
+      <div className="border-t dark:border-gray-700 pt-6">
+        <h4 className="font-medium mb-4 flex items-center text-red-600 dark:text-red-400">
           <Shield className="w-4 h-4 mr-2" />
           Account Actions
         </h4>
-        <p className="text-sm text-gray-500 mb-4">These actions are irreversible. Please proceed with caution.</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">These actions are irreversible. Please proceed with caution.</p>
         <button
           onClick={() => {
             if (window.confirm('Are you sure you want to logout?')) {
@@ -636,7 +639,7 @@ export default function ProfilePage() {
               navigate('/login')
             }
           }}
-          className="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50"
+          className="px-4 py-2 border border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30"
         >
           Logout
         </button>
@@ -649,15 +652,15 @@ export default function ProfilePage() {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Sidebar */}
         <div className="lg:w-64 flex-shrink-0">
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-800 p-6 mb-6">
             <div className="flex flex-col items-center">
               <div className="relative">
-                <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-200">
+                <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
                   {user?.avatar ? (
                     <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-primary-100">
-                      <User className="w-12 h-12 text-primary-600" />
+                    <div className="w-full h-full flex items-center justify-center bg-primary-100 dark:bg-primary-900">
+                      <User className="w-12 h-12 text-primary-600 dark:text-primary-400" />
                     </div>
                   )}
                 </div>
@@ -675,32 +678,32 @@ export default function ProfilePage() {
                   className="hidden"
                 />
               </div>
-              <h2 className="mt-4 font-semibold text-lg">{user?.first_name} {user?.last_name}</h2>
-              <p className="text-gray-500 text-sm">{user?.email}</p>
+              <h2 className="mt-4 font-semibold text-lg dark:text-gray-100">{user?.first_name} {user?.last_name}</h2>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">{user?.email}</p>
             </div>
           </div>
 
-          <nav className="bg-white rounded-lg shadow-md overflow-hidden">
+          <nav className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-800 overflow-hidden">
             <button
               onClick={() => setActiveTab(TABS.OVERVIEW)}
-              className={`w-full flex items-center px-4 py-3 text-left ${activeTab === TABS.OVERVIEW ? 'bg-primary-50 text-primary-700 border-l-4 border-primary-600' : 'text-gray-700 hover:bg-gray-50'}`}
+              className={`w-full flex items-center px-4 py-3 text-left ${activeTab === TABS.OVERVIEW ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 border-l-4 border-primary-600' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
             >
               <User className="w-5 h-5 mr-3" />
               Overview
             </button>
             <button
               onClick={() => setActiveTab(TABS.ADDRESSES)}
-              className={`w-full flex items-center px-4 py-3 text-left ${activeTab === TABS.ADDRESSES ? 'bg-primary-50 text-primary-700 border-l-4 border-primary-600' : 'text-gray-700 hover:bg-gray-50'}`}
+              className={`w-full flex items-center px-4 py-3 text-left ${activeTab === TABS.ADDRESSES ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 border-l-4 border-primary-600' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
             >
               <MapPin className="w-5 h-5 mr-3" />
               Addresses
-              <span className="ml-auto bg-gray-200 text-gray-700 text-xs px-2 py-0.5 rounded-full">
+              <span className="ml-auto bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs px-2 py-0.5 rounded-full">
                 {addresses.length}
               </span>
             </button>
             <button
               onClick={() => navigate('/orders')}
-              className="w-full flex items-center px-4 py-3 text-left text-gray-700 hover:bg-gray-50"
+              className="w-full flex items-center px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
             >
               <Package className="w-5 h-5 mr-3" />
               Orders
@@ -708,7 +711,7 @@ export default function ProfilePage() {
             </button>
             <button
               onClick={() => navigate('/wishlist')}
-              className="w-full flex items-center px-4 py-3 text-left text-gray-700 hover:bg-gray-50"
+              className="w-full flex items-center px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
             >
               <Heart className="w-5 h-5 mr-3" />
               Wishlist
@@ -716,7 +719,7 @@ export default function ProfilePage() {
             </button>
             <button
               onClick={() => setActiveTab(TABS.SECURITY)}
-              className={`w-full flex items-center px-4 py-3 text-left ${activeTab === TABS.SECURITY ? 'bg-primary-50 text-primary-700 border-l-4 border-primary-600' : 'text-gray-700 hover:bg-gray-50'}`}
+              className={`w-full flex items-center px-4 py-3 text-left ${activeTab === TABS.SECURITY ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 border-l-4 border-primary-600' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'}`}
             >
               <Shield className="w-5 h-5 mr-3" />
               Security
@@ -726,7 +729,7 @@ export default function ProfilePage() {
 
         {/* Main Content */}
         <div className="flex-1">
-          {isEditing || activeTab === TABS.EDIT_PROFILE ? renderEditProfile()
+          {activeTab === TABS.EDIT_PROFILE || isEditing ? renderEditProfile()
             : activeTab === TABS.ADDRESSES ? renderAddresses()
               : activeTab === TABS.SECURITY ? renderSecurity()
                 : renderOverview()
@@ -740,21 +743,13 @@ export default function ProfilePage() {
 // Helper functions
 function getStatusColor(status) {
   const colors = {
-    pending: 'bg-yellow-100 text-yellow-800',
-    processing: 'bg-blue-100 text-blue-800',
-    shipped: 'bg-purple-100 text-purple-800',
-    delivered: 'bg-green-100 text-green-800',
-    cancelled: 'bg-red-100 text-red-800',
-    refunded: 'bg-gray-100 text-gray-800',
+    pending: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400',
+    processing: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400',
+    shipped: 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400',
+    delivered: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400',
+    cancelled: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400',
+    refunded: 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-400',
   }
-  return colors[status] || 'bg-gray-100'
+  return colors[status] || 'bg-gray-100 dark:bg-gray-700'
 }
 
-function ClockIcon(props) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <circle cx="12" cy="12" r="10" />
-      <polyline points="12 6 12 12 16 14" />
-    </svg>
-  )
-}

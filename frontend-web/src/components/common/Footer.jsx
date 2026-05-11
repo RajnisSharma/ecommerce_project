@@ -76,11 +76,11 @@ export default function Footer() {
               </li>
               <li className="flex items-center space-x-2">
                 <Phone className="w-5 h-5" />
-                <span>+1 (555) 123-4567</span>
+                <span>+91 9876543210</span>
               </li>
               <li className="flex items-start space-x-2">
                 <MapPin className="w-5 h-5 mt-0.5" />
-                <span>123 Commerce St<br />New York, NY 10001</span>
+                <span>BTM Layout<br />Bangalore, Karnataka 560076</span>
               </li>
             </ul>
           </div>

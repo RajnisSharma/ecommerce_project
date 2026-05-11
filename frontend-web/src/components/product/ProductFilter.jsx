@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, Star } from 'lucide-react'
+import { ChevronDown, ChevronUp, Star, X } from 'lucide-react'
 
-export default function ProductFilter({ filters, onFilterChange, categories }) {
+export default function ProductFilter({ filters, onFilterChange, categories, onApply }) {
   const [expanded, setExpanded] = useState({
     category: true,
     gender: false,
@@ -19,50 +19,63 @@ export default function ProductFilter({ filters, onFilterChange, categories }) {
     discount: false,
     rating: false,
     delivery: false,
+    stock: false,
   })
 
-  const handlePriceChange = (e) => {
-    const { name, value } = e.target
-    onFilterChange({ ...filters, [name]: value })
+  // Helper to toggle array values (multi-select)
+  const toggleArrayFilter = (key, value) => {
+    const currentValues = filters[key] || []
+    const newValues = currentValues.includes(value)
+      ? currentValues.filter(v => v !== value)
+      : [...currentValues, value]
+    onFilterChange({ ...filters, [key]: newValues })
   }
 
-  const handleCategoryChange = (categorySlug) => {
-    onFilterChange({
-      ...filters,
-      category: filters.category === categorySlug ? '' : categorySlug,
-    })
+  // Helper to toggle single value in array (for price ranges)
+  const toggleSingleInArray = (key, value) => {
+    const currentValues = filters[key] || []
+    const newValues = currentValues.includes(value)
+      ? []
+      : [value]
+    onFilterChange({ ...filters, [key]: newValues })
   }
 
-  const toggleFilter = (key, value) => {
-    onFilterChange({
-      ...filters,
-      [key]: filters[key] === value ? '' : value,
-    })
+  // Check if filter is active
+  const isChecked = (key, value) => {
+    const values = filters[key] || []
+    return values.includes(value)
   }
 
   const clearFilters = () => {
     onFilterChange({
-      category: '',
-      gender: '',
-      brand: '',
-      size: '',
-      fabric: '',
-      product_type: '',
-      color: '',
-      pattern: '',
-      fit: '',
-      occasion: '',
-      age_group: '',
-      sleeve_type: '',
-      min_price: '',
-      max_price: '',
-      min_rating: '',
-      discount: '',
+      category: [],
+      gender: [],
+      brand: [],
+      size: [],
+      fabric: [],
+      product_type: [],
+      color: [],
+      pattern: [],
+      fit: [],
+      occasion: [],
+      age_group: [],
+      sleeve_type: [],
+      price_range: [],
+      min_rating: [],
+      discount: [],
       fast_delivery: false,
       in_stock: false,
-      search: '',
+      search: filters.search, // Keep search term
+      ordering: filters.ordering, // Keep sorting
     })
   }
+
+  const activeFiltersCount = Object.entries(filters).reduce((count, [key, value]) => {
+    if (key === 'search' || key === 'ordering') return count
+    if (Array.isArray(value)) return count + value.length
+    if (typeof value === 'boolean') return count + (value ? 1 : 0)
+    return count + (value ? 1 : 0)
+  }, 0)
 
   const genderOptions = [
     { value: 'men', label: 'Men' },
@@ -87,71 +100,103 @@ export default function ProductFilter({ filters, onFilterChange, categories }) {
     { value: '40', label: '40% or more' },
     { value: '50', label: '50% or more' },
   ]
+  const priceRangeOptions = [
+    { value: '0-500', label: 'Under ₹500' },
+    { value: '500-1000', label: '₹500 - ₹1000' },
+    { value: '1000-2000', label: '₹1000 - ₹2000' },
+    { value: '2000-5000', label: '₹2000 - ₹5000' },
+    { value: '5000-10000', label: '₹5000 - ₹10000' },
+    { value: '10000+', label: 'Over ₹10000' },
+  ]
+  const ratingOptions = [
+    { value: '4', label: '4★ & above' },
+    { value: '3', label: '3★ & above' },
+    { value: '2', label: '2★ & above' },
+  ]
 
-  const renderFilterSection = (title, key, options, isSingle = true) => (
-    <div className="border-b pb-4 mb-4">
-      <button
-        onClick={() => setExpanded({ ...expanded, [key]: !expanded[key] })}
-        className="flex items-center justify-between w-full mb-2"
-      >
-        <span className="font-medium uppercase text-sm tracking-wide">{title}</span>
-        {expanded[key] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-      </button>
-      {expanded[key] && (
-        <div className="space-y-2 max-h-48 overflow-y-auto">
-          {options.map((option) => {
-            const value = typeof option === 'string' ? option.toLowerCase() : option.value
-            const label = typeof option === 'string' ? option : option.label
-            return (
-              <label key={value} className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded">
-                <input
-                  type={isSingle ? 'radio' : 'checkbox'}
-                  name={key}
-                  checked={filters[key] === value}
-                  onChange={() => toggleFilter(key, value)}
-                  className="mr-2 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                />
-                <span className="text-sm text-gray-700">{label}</span>
-              </label>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
+  const renderFilterSection = (title, key, options) => {
+    const activeCount = (filters[key] || []).length
+    return (
+      <div className="border-b dark:border-gray-700 pb-4 mb-4">
+        <button
+          onClick={() => setExpanded({ ...expanded, [key]: !expanded[key] })}
+          className="flex items-center justify-between w-full mb-2"
+        >
+          <span className="font-medium uppercase text-sm tracking-wide dark:text-gray-200">
+            {title}
+            {activeCount > 0 && (
+              <span className="ml-2 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 text-xs px-2 py-0.5 rounded-full">
+                {activeCount}
+              </span>
+            )}
+          </span>
+          {expanded[key] ? <ChevronUp className="w-4 h-4 dark:text-gray-400" /> : <ChevronDown className="w-4 h-4 dark:text-gray-400" />}
+        </button>
+        {expanded[key] && (
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {options.map((option) => {
+              const value = typeof option === 'string' ? option.toLowerCase() : option.value
+              const label = typeof option === 'string' ? option : option.label
+              return (
+                <label key={value} className="flex items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-1 rounded">
+                  <input
+                    type="checkbox"
+                    checked={isChecked(key, value)}
+                    onChange={() => toggleArrayFilter(key, value)}
+                    className="mr-2 rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500 h-4 w-4 dark:bg-gray-700"
+                  />
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{label}</span>
+                </label>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    )
+  }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md dark:shadow-gray-800 p-4">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="font-semibold text-lg">Filters</h3>
-        <button
-          onClick={clearFilters}
-          className="text-sm text-primary-600 hover:text-primary-700 font-medium"
-        >
-          Clear all
-        </button>
+        <h3 className="font-semibold text-lg dark:text-gray-100">Filters</h3>
+        {activeFiltersCount > 0 && (
+          <button
+            onClick={clearFilters}
+            className="flex items-center text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium"
+          >
+            <X className="w-4 h-4 mr-1" />
+            Clear all ({activeFiltersCount})
+          </button>
+        )}
       </div>
 
       {/* Categories */}
-      <div className="border-b pb-4 mb-4">
+      <div className="border-b dark:border-gray-700 pb-4 mb-4">
         <button
           onClick={() => setExpanded({ ...expanded, category: !expanded.category })}
           className="flex items-center justify-between w-full mb-2"
         >
-          <span className="font-medium uppercase text-sm tracking-wide">Categories</span>
-          {expanded.category ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          <span className="font-medium uppercase text-sm tracking-wide dark:text-gray-200">
+            Categories
+            {(filters.category || []).length > 0 && (
+              <span className="ml-2 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 text-xs px-2 py-0.5 rounded-full">
+                {(filters.category || []).length}
+              </span>
+            )}
+          </span>
+          {expanded.category ? <ChevronUp className="w-4 h-4 dark:text-gray-400" /> : <ChevronDown className="w-4 h-4 dark:text-gray-400" />}
         </button>
         {expanded.category && (
           <div className="space-y-2 max-h-60 overflow-y-auto">
             {(categories || []).map((category) => (
-              <label key={category.id} className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded">
+              <label key={category.id} className="flex items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-1 rounded">
                 <input
                   type="checkbox"
-                  checked={filters.category === category.slug}
-                  onChange={() => handleCategoryChange(category.slug)}
-                  className="mr-2 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  checked={isChecked('category', category.slug)}
+                  onChange={() => toggleArrayFilter('category', category.slug)}
+                  className="mr-2 rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500 h-4 w-4 dark:bg-gray-700"
                 />
-                <span className="text-sm text-gray-700">{category.name}</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">{category.name}</span>
               </label>
             ))}
           </div>
@@ -202,71 +247,66 @@ export default function ProductFilter({ filters, onFilterChange, categories }) {
       {/* Sleeve Type */}
       {renderFilterSection('Sleeve Type', 'sleeve_type', sleeveOptions)}
 
-      {/* Price Range */}
-      <div className="border-b pb-4 mb-4">
+      {/* Price Range - Checkbox Version */}
+      <div className="border-b dark:border-gray-700 pb-4 mb-4">
         <button
           onClick={() => setExpanded({ ...expanded, price: !expanded.price })}
           className="flex items-center justify-between w-full mb-2"
         >
-          <span className="font-medium uppercase text-sm tracking-wide">Price</span>
-          {expanded.price ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          <span className="font-medium uppercase text-sm tracking-wide dark:text-gray-200">
+            Price
+            {(filters.price_range || []).length > 0 && (
+              <span className="ml-2 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 text-xs px-2 py-0.5 rounded-full">
+                {(filters.price_range || []).length}
+              </span>
+            )}
+          </span>
+          {expanded.price ? <ChevronUp className="w-4 h-4 dark:text-gray-400" /> : <ChevronDown className="w-4 h-4 dark:text-gray-400" />}
         </button>
         {expanded.price && (
-          <div className="space-y-3">
-            <div className="flex items-center space-x-2">
-              <select
-                name="min_price"
-                value={filters.min_price}
-                onChange={handlePriceChange}
-                className="flex-1 px-2 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              >
-                <option value="">Min</option>
-                <option value="100">₹100</option>
-                <option value="500">₹500</option>
-                <option value="1000">₹1000</option>
-                <option value="2000">₹2000</option>
-                <option value="5000">₹5000</option>
-              </select>
-              <span className="text-gray-400">to</span>
-              <select
-                name="max_price"
-                value={filters.max_price}
-                onChange={handlePriceChange}
-                className="flex-1 px-2 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              >
-                <option value="">Max</option>
-                <option value="500">₹500</option>
-                <option value="1000">₹1000</option>
-                <option value="2000">₹2000</option>
-                <option value="5000">₹5000</option>
-                <option value="10000">₹10000+</option>
-              </select>
-            </div>
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {priceRangeOptions.map((option) => (
+              <label key={option.value} className="flex items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-1 rounded">
+                <input
+                  type="checkbox"
+                  checked={isChecked('price_range', option.value)}
+                  onChange={() => toggleSingleInArray('price_range', option.value)}
+                  className="mr-2 rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500 h-4 w-4 dark:bg-gray-700"
+                />
+                <span className="text-sm text-gray-700 dark:text-gray-300">{option.label}</span>
+              </label>
+            ))}
           </div>
         )}
       </div>
 
       {/* Discount */}
-      <div className="border-b pb-4 mb-4">
+      <div className="border-b dark:border-gray-700 pb-4 mb-4">
         <button
           onClick={() => setExpanded({ ...expanded, discount: !expanded.discount })}
           className="flex items-center justify-between w-full mb-2"
         >
-          <span className="font-medium uppercase text-sm tracking-wide">Discount</span>
-          {expanded.discount ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          <span className="font-medium uppercase text-sm tracking-wide dark:text-gray-200">
+            Discount
+            {(filters.discount || []).length > 0 && (
+              <span className="ml-2 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 text-xs px-2 py-0.5 rounded-full">
+                {(filters.discount || []).length}
+              </span>
+            )}
+          </span>
+          {expanded.discount ? <ChevronUp className="w-4 h-4 dark:text-gray-400" /> : <ChevronDown className="w-4 h-4 dark:text-gray-400" />}
         </button>
         {expanded.discount && (
           <div className="space-y-2">
             {discountOptions.map((option) => (
-              <label key={option.value} className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded">
+              <label key={option.value} className="flex items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-1 rounded">
                 <input
-                  type="radio"
-                  name="discount"
-                  checked={filters.discount === option.value}
-                  onChange={() => toggleFilter('discount', option.value)}
-                  className="mr-2 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  type="checkbox"
+                  checked={isChecked('discount', option.value)}
+                  onChange={() => toggleArrayFilter('discount', option.value)}
+                  className="mr-2 rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500 h-4 w-4 dark:bg-gray-700"
                 />
-                <span className="text-sm text-gray-700">{option.label}</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">{option.label}</span>
               </label>
             ))}
           </div>
@@ -274,28 +314,32 @@ export default function ProductFilter({ filters, onFilterChange, categories }) {
       </div>
 
       {/* Customer Ratings */}
-      <div className="border-b pb-4 mb-4">
+      <div className="border-b dark:border-gray-700 pb-4 mb-4">
         <button
           onClick={() => setExpanded({ ...expanded, rating: !expanded.rating })}
           className="flex items-center justify-between w-full mb-2"
         >
-          <span className="font-medium uppercase text-sm tracking-wide">Customer Ratings</span>
-          {expanded.rating ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          <span className="font-medium uppercase text-sm tracking-wide dark:text-gray-200">
+            Customer Ratings
+            {(filters.min_rating || []).length > 0 && (
+              <span className="ml-2 bg-primary-100 dark:bg-primary-900 text-primary-700 dark:text-primary-300 text-xs px-2 py-0.5 rounded-full">
+                {(filters.min_rating || []).length}
+              </span>
+            )}
+          </span>
+          {expanded.rating ? <ChevronUp className="w-4 h-4 dark:text-gray-400" /> : <ChevronDown className="w-4 h-4 dark:text-gray-400" />}
         </button>
         {expanded.rating && (
           <div className="space-y-2">
-            {[
-              { value: '4', label: '4★ & above' },
-              { value: '3', label: '3★ & above' },
-            ].map((option) => (
-              <label key={option.value} className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded">
+            {ratingOptions.map((option) => (
+              <label key={option.value} className="flex items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-1 rounded">
                 <input
                   type="checkbox"
-                  checked={filters.min_rating === option.value}
-                  onChange={() => toggleFilter('min_rating', option.value)}
-                  className="mr-2 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  checked={isChecked('min_rating', option.value)}
+                  onChange={() => toggleArrayFilter('min_rating', option.value)}
+                  className="mr-2 rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500 h-4 w-4 dark:bg-gray-700"
                 />
-                <span className="text-sm text-gray-700 flex items-center">
+                <span className="text-sm text-gray-700 dark:text-gray-300 flex items-center">
                   {option.label}
                   <Star className="w-3 h-3 ml-1 fill-yellow-400 text-yellow-400" />
                 </span>
@@ -305,27 +349,59 @@ export default function ProductFilter({ filters, onFilterChange, categories }) {
         )}
       </div>
 
+      {/* Availability / Stock */}
+      <div className="border-b dark:border-gray-700 pb-4 mb-4">
+        <button
+          onClick={() => setExpanded({ ...expanded, stock: !expanded.stock })}
+          className="flex items-center justify-between w-full mb-2"
+        >
+          <span className="font-medium uppercase text-sm tracking-wide dark:text-gray-200">Availability</span>
+          {expanded.stock ? <ChevronUp className="w-4 h-4 dark:text-gray-400" /> : <ChevronDown className="w-4 h-4 dark:text-gray-400" />}
+        </button>
+        {expanded.stock && (
+          <label className="flex items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-1 rounded">
+            <input
+              type="checkbox"
+              checked={filters.in_stock}
+              onChange={(e) => onFilterChange({ ...filters, in_stock: e.target.checked })}
+              className="mr-2 rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500 h-4 w-4 dark:bg-gray-700"
+            />
+            <span className="text-sm text-gray-700 dark:text-gray-300">In Stock Only</span>
+          </label>
+        )}
+      </div>
+
       {/* Delivery */}
-      <div>
+      <div className="mb-4">
         <button
           onClick={() => setExpanded({ ...expanded, delivery: !expanded.delivery })}
           className="flex items-center justify-between w-full mb-2"
         >
-          <span className="font-medium uppercase text-sm tracking-wide">Delivery</span>
-          {expanded.delivery ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          <span className="font-medium uppercase text-sm tracking-wide dark:text-gray-200">Delivery</span>
+          {expanded.delivery ? <ChevronUp className="w-4 h-4 dark:text-gray-400" /> : <ChevronDown className="w-4 h-4 dark:text-gray-400" />}
         </button>
         {expanded.delivery && (
-          <label className="flex items-center cursor-pointer hover:bg-gray-50 p-1 rounded">
+          <label className="flex items-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-1 rounded">
             <input
               type="checkbox"
               checked={filters.fast_delivery}
               onChange={(e) => onFilterChange({ ...filters, fast_delivery: e.target.checked })}
-              className="mr-2 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              className="mr-2 rounded border-gray-300 dark:border-gray-600 text-primary-600 focus:ring-primary-500 h-4 w-4 dark:bg-gray-700"
             />
-            <span className="text-sm text-gray-700">Delivery in 1 day</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">Fast Delivery</span>
           </label>
         )}
       </div>
+
+      {/* Apply Button - Mobile Only */}
+      {onApply && (
+        <button
+          onClick={onApply}
+          className="lg:hidden w-full bg-primary-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-primary-700 active:bg-primary-800 transition-colors mb-4"
+        >
+          Apply {activeFiltersCount > 0 ? `(${activeFiltersCount})` : ''} Filters
+        </button>
+      )}
     </div>
   )
 }

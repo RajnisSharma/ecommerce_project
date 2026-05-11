@@ -21,6 +21,9 @@ api.interceptors.request.use(
 )
 
 // Response interceptor for token refresh
+let isRefreshing = false
+let refreshPromise = null
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -29,22 +32,47 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
 
+      // If already refreshing, wait for it to complete
+      if (isRefreshing) {
+        try {
+          await refreshPromise
+          originalRequest.headers.Authorization = `Bearer ${localStorage.getItem('access_token')}`
+          return api(originalRequest)
+        } catch (refreshError) {
+          return Promise.reject(refreshError)
+        }
+      }
+
+      isRefreshing = true
+      refreshPromise = (async () => {
+        try {
+          const refreshToken = localStorage.getItem('refresh_token')
+          if (!refreshToken) {
+            throw new Error('No refresh token')
+          }
+          const response = await axios.post(`${API_BASE_URL}/auth/token/refresh/`, {
+            refresh: refreshToken,
+          })
+
+          const { access } = response.data
+          localStorage.setItem('access_token', access)
+          return access
+        } catch (err) {
+          localStorage.removeItem('access_token')
+          localStorage.removeItem('refresh_token')
+          window.location.href = '/login'
+          throw err
+        } finally {
+          isRefreshing = false
+          refreshPromise = null
+        }
+      })()
+
       try {
-        const refreshToken = localStorage.getItem('refresh_token')
-        const response = await axios.post(`${API_BASE_URL}/auth/token/refresh/`, {
-          refresh: refreshToken,
-        })
-
-        const { access } = response.data
-        localStorage.setItem('access_token', access)
-
+        const access = await refreshPromise
         originalRequest.headers.Authorization = `Bearer ${access}`
         return api(originalRequest)
       } catch (refreshError) {
-        // Refresh failed, logout user
-        localStorage.removeItem('access_token')
-        localStorage.removeItem('refresh_token')
-        window.location.href = '/login'
         return Promise.reject(refreshError)
       }
     }

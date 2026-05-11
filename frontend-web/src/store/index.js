@@ -5,6 +5,7 @@ import productReducer from './slices/productSlice'
 import orderReducer from './slices/orderSlice'
 import notificationReducer from './slices/notificationSlice'
 import adminReducer from './slices/adminSlice'
+import wishlistReducer from './slices/wishlistSlice'
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     orders: orderReducer,
     notifications: notificationReducer,
     admin: adminReducer,
+    wishlist: wishlistReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
